@@ -136,13 +136,13 @@ router.post('/register',async (req,res)=>{
 router.post('/login',(req,res,next)=>{
     passport.authenticate('local',{
         failureRedirect:'/login',
-        successRedirect:'/index',
+        successRedirect:'/home',
         failureFlash:true
     })(req,res,next);
 })
 
-router.get('/index',checkAuthenticated,(req,res)=>{
-    res.render('index');
+router.get('/home',checkAuthenticated,(req,res)=>{
+    res.render('home',{name:req.user.name});
 })
 
 
