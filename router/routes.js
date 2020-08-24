@@ -142,7 +142,7 @@ router.post('/login',(req,res,next)=>{
 })
 
 router.get('/home',checkAuthenticated,(req,res)=>{
-    res.render('home',{name:req.user.name});
+    res.render('home',{name:req.user.name,email:req.user.email,coaching:req.user.coaching});
 })
 
 
