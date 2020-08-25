@@ -9,11 +9,11 @@ body::-webkit-scrollbar {
   }
 .nav{
     height: 8vh;
-    background-color: black;
+    background-color: #2196F3;
 }
 .video{
     height:80vh;
-    background-color: blue;
+    background-color: black;
 }
 .bottom{
     height: 12vh;
@@ -36,6 +36,7 @@ body::-webkit-scrollbar {
 .nav h1
 {
     padding-left: 10px;
+    letter-spacing: 0.8px;
 }
 #side{
     float:right;
@@ -125,4 +126,21 @@ body::-webkit-scrollbar {
 .image video{
     height: 100%;
     width:100%;
+}
+
+
+
+/* Main video */
+
+#main_video{
+    height: 100%;
+    width:70%;
+    margin:0 auto 0 auto;
+    z-index: 3;
+}
+.zoomIn{
+    z-index: 10;
+}
+.zoomOut{
+    z-index: 10;
 }

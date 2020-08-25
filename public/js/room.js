@@ -1,11 +1,14 @@
+$('document').ready(()=>{
+
+
+// Animation
+
 $('#side').on('click',function(){
     $('.side_bar').toggle();
 })
 
-$('document').ready(()=>{
     console.log('ready')
     $('.head_messages').hide()
-})
 
 $('.left').on('click',()=>{
     $('.left').css('background-color','#C0C0C0')
@@ -66,3 +69,44 @@ send.onclick = ()=>{
 
 }
 
+// PeerJs ----------------
+
+
+    const socket = io();
+    console.log('tesign s')
+    const myPeer = new Peer({host:'peerjs-server.herokuapp.com', secure:true, port:443})
+    
+    const peers={};
+    const calls={};
+    const msg ={};
+    var id;
+
+    const video = document.querySelector('#main_video')
+    var UserStream;
+
+    navigator.mediaDevices.getUserMedia({video:true,audio:{echoCancellation: true}}).then(stream=>{
+        UserStream=stream
+        video.srcObject = UserStream;
+    })
+
+    
+
+    const mic = document.querySelector('.mic')
+    const cam = document.querySelector('.camera')
+    const disconnect = document.querySelector('.disconnect')
+
+    mic.onclick = ()=>{
+        UserStream.getAudioTracks()[0].enabled = !(UserStream.getAudioTracks()[0].enabled);
+        // video.srcObject = UserStream
+    }
+    cam.onclick=()=>{
+        UserStream.getVideoTracks()[0].enabled = !(UserStream.getVideoTracks()[0].enabled);
+    }
+    disconnect.onclick = ()=>{
+        if(confirm('close window'))
+        {
+            top.close()
+        }
+    }
+
+})

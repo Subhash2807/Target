@@ -83,10 +83,6 @@ var localStrategy = require('passport-local').Strategy
  // end of authentication strategy
 
 
-
-
-
-
 router.get('/login',(req,res)=>{
     res.render('login')
 })
