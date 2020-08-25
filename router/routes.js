@@ -145,6 +145,10 @@ router.get('/home',checkAuthenticated,(req,res)=>{
     res.render('home',{name:req.user.name,email:req.user.email,coaching:req.user.coaching});
 })
 
+router.get('/room/:room',(req,res)=>{
+    res.render('room',req.body);
+})
+
 
 router.get('/logout',(req,res)=>{
     req.logOut();
