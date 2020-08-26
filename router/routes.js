@@ -141,8 +141,8 @@ router.get('/home',checkAuthenticated,(req,res)=>{
     res.render('home',{name:req.user.name,email:req.user.email,coaching:req.user.coaching});
 })
 
-router.get('/room/:room',(req,res)=>{
-    res.render('room',req.body);
+router.get('/room/:room',checkAuthenticated,(req,res)=>{
+    res.render('room',{name:req.user.name,email:req.user.email,coaching:req.user.coaching,room:req.params.room});
 })
 
 

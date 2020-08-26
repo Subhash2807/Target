@@ -53,32 +53,18 @@ test.onclick = ()=>{
 
 // template insertion message
 
-const msgTemp = document.querySelector('#msg_temp_text').innerHTML
-const messages = document.querySelector('.head_messages');
 
-const send = document.querySelector('#msg')
-send.onclick = ()=>{
-    const html  = Mustache.render(msgTemp,{
-        username:'rustam',
-        createdAt:"21:30 am",
-        message:"hi developer!!!"
-    })
-
-    messages.insertAdjacentHTML('beforeend',html);
-    $('.head_messages').scrollTop($('.head_messages').height())
-
-}
 
 // PeerJs ----------------
 
 
     const socket = io();
-    console.log('tesign s')
     const myPeer = new Peer({host:'peerjs-server.herokuapp.com', secure:true, port:443})
     
     const peers={};
     const calls={};
     const msg ={};
+    const names ={}
     var id;
 
     const video = document.querySelector('#main_video')
@@ -90,6 +76,7 @@ send.onclick = ()=>{
     })
 
     
+    // bottom icon bar 
 
     const mic = document.querySelector('.mic')
     const cam = document.querySelector('.camera')
@@ -105,8 +92,171 @@ send.onclick = ()=>{
     disconnect.onclick = ()=>{
         if(confirm('close window'))
         {
-            top.close()
+            window.open('/home','_self');
+            window.close()
         }
     }
+
+    myPeer.on('open',id=>{
+        socket.emit('join-room',id,roomId,myName)
+    })
+
+    socket.on('user-connected',(userId,name)=>{
+        names[userId]=name;
+        connectToMsg(userId,myName)
+        // connectToNewUser(userId)
+        console.log('1',userId,name)
+
+    })
+
+    const connectToMsg = (userId,name)=>{
+        const conn = myPeer.connect(userId)
+        conn.on('open',()=>{
+            console.log(2,name,conn)
+            conn.send({
+                type:'meta',
+                name:name,
+            })
+            conn.send({
+                type:'pdf',
+                file:'hello file'
+            })
+            conn.send({
+                type:'png',
+                file:'hello'
+            })
+        })
+        msg[userId]=conn;
+    }
+
+    myPeer.on('connection',(conn)=>{
+
+        if(msg[conn.peer]==null)
+        connectToMsg(conn.peer,myName)
+        console.log(3,'connection established')
+
+        conn.on('data',(data)=>{
+            console.log(data)
+            switch(data.type){
+                case 'meta':console.log(data.name);
+                            names[conn.peer]=data.name;
+                            break;
+                case 'msg':console.log(data.msg);
+                            sendMsg(names[conn.peer],data.msg)
+                            break;
+                case 'image':sendImg(names[conn.peer],data.fileType,data.file,data.fileName);
+                            break;
+                    default:sendFile(names[conn.peer],data.fileType,data.file,data.fileName);
+                    break;
+            }
+        })
+    })
+
+    // sending text msg
+
+    const textMsg = document.querySelector('.text');
+    const msgTemp = document.querySelector('#msg_temp_text').innerHTML
+    const imgTemp = document.querySelector('#msg_temp_img').innerHTML
+    const fileTemp = document.querySelector('#msg_temp_file').innerHTML
+
+    const messages = document.querySelector('.head_messages');
+
+    const send = document.querySelector('#msg')
+
+    send.onclick = ()=>{
+
+        sendMsg(myName,textMsg.value);
+        for(let key in msg)
+        {
+            if(msg.hasOwnProperty(key)){
+            value=msg[key];
+            value.send({
+                type:'msg',
+                msg:textMsg.value
+            })
+            }
+        }
+        textMsg.value='';
+    }
+
+
+    const sendMsg = (name,message)=>{
+    const html  = Mustache.render(msgTemp,{
+        username:name,
+        createdAt:moment().format('h:mm a'),
+        message:message
+    })
+
+    messages.insertAdjacentHTML('beforeend',html);
+    $('.head_messages').scrollTop($('.head_messages').height())
+
+    }
+
+    const sendImg = (name,type,file,fileName)=>{
+        const bytes = new Uint8Array(file);
+        const blob = new Blob([bytes],{type:type})
+        const url = URL.createObjectURL(blob)
+        const html = Mustache.render(imgTemp,{
+            username:name,
+            createdAt:moment().format('h:mm a'),
+            src:url
+        })
+
+        messages.insertAdjacentHTML('beforeend',html)
+        $('.head_messages').scrollTop($('.head_messages').height())
+
+    }
+
+    const sendFile = (name,type,file,fileName)=>{
+        const bytes = new Uint8Array(file);
+        const blob = new Blob([bytes],{type:type})
+        const url = URL.createObjectURL(blob)
+        const html = Mustache.render(fileTemp,{
+            username:name,
+            createdAt:moment().format('h:mm a'),
+            href:url,
+            fileName:fileName,
+            downloadName:fileName
+        })
+        messages.insertAdjacentHTML('beforeend',html)
+        $('.head_messages').scrollTop($('.head_messages').height())
+
+    }
+
+const fileSend = document.querySelector('#file-upload')
+fileSend.onchange = ()=>{
+    // console.log('selected')
+    const file = fileSend.files[0]
+    if(file.type.includes('image'))
+    {
+        for(let key in msg)
+        {
+            if(msg.hasOwnProperty(key)){
+            value=msg[key];
+            value.send({
+                type:'image',
+                fileType:file.type,
+                file:file,
+                fileName:file.name
+            })
+            }
+        }
+    }
+    else
+    {
+        for(let key in msg)
+        {
+            if(msg.hasOwnProperty(key)){
+            value=msg[key];
+            value.send({
+                type:"file",
+                fileType:file.type,
+                file:file,
+                fileName:file.name,
+            })
+            }
+        }
+    }
+}
 
 })

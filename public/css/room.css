@@ -95,12 +95,28 @@ body::-webkit-scrollbar {
     width:100%;
 }
 
+input[type="file"] {
+    display: none;
+}
+.file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.file-upload img{
+    height:18px;
+}
+
+
 .head_contacts::-webkit-scrollbar {
     display: none;
   }
-  .head_messages::-webkit-scrollbar {
+  /* .head_messages::-webkit-scrollbar {
     display: none;
-  }
+  } */
 
 /* contact template */
 
@@ -143,4 +159,15 @@ body::-webkit-scrollbar {
 }
 .zoomOut{
     z-index: 10;
+}
+
+.bottom_send{
+    height:10vh;
+    width: 100%;
+    background-color: red;
+    position: absolute;
+    top:0;
+    margin-top:90vh;
+    display: inline-block;
+    justify-content: center;
 }
