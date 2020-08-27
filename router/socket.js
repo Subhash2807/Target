@@ -8,6 +8,17 @@ module.exports = (io) =>{
             socket.join(roomId);
             console.log(name)
             socket.to(roomId).broadcast.emit('user-connected',userId,name)
+
+            
+            socket.on('disconnect',()=>{
+                socket.to(roomId).broadcast.emit('user-disconnected',userId);
+            })
+
+            socket.on('present',userId=>{
+                socket.to(roomId).broadcast.emit('presenting',userId);
+            })
         })
+
+        
     })
 }

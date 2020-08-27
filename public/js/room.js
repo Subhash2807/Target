@@ -37,23 +37,8 @@ $('.right').on('click',()=>{
 // templates insertion contact
 
 
-const contTemp = document.querySelector('#cont_temp').innerHTML
 
 const contacts = document.querySelector('.head_contacts')
-const test = document.querySelector('.test')
-
-test.onclick = ()=>{
-    console.log('clicked')
-    const html = Mustache.render(contTemp,{
-        username:'Rustam'
-    })
-    contacts.insertAdjacentHTML('beforeend',html)
-}
-
-
-// template insertion message
-
-
 
 // PeerJs ----------------
 
@@ -65,17 +50,90 @@ test.onclick = ()=>{
     const calls={};
     const msg ={};
     const names ={}
-    var id;
+    const list ={};
+    var Myid;
 
-    const video = document.querySelector('#main_video')
+    const Video = document.querySelector('#main_video')
     var UserStream;
 
     navigator.mediaDevices.getUserMedia({video:true,audio:{echoCancellation: true}}).then(stream=>{
         UserStream=stream
-        video.srcObject = UserStream;
+        Video.srcObject = UserStream;
+        console.log(Video)
+
+
+        myPeer.on('call',call=>{
+            
+            call.answer(UserStream);
+            const contTemp = document.querySelector('#cont_temp').innerHTML
+            call.on('stream',userVideoStream=>{
+                addVideoStream(contTemp,userVideoStream,names[call.peer],call.peer)
+                console.log(call.peer)
+            })
+            
+            
+        })
+
+      
+    })
+    socket.on('user-connected',(userId,name)=>{
+        names[userId]=name;
+        connectToMsg(userId,myName)
+        connectToNewUser(userId,UserStream);
     })
 
+    socket.on('user-disconnected',userId=>{
+        console.log('disconnected 2')
+        if(peers[userId]) peers[userId].close();
+        if(msg[userId]) msg[userId].close();
+        list[userId]=null;
+        $('#'+userId).parents('.contact_temp').remove()
+    })
+
+    //Main Video psuedo code
+
     
+
+
+    const connectToNewUser = (userId,UserStream)=>{
+        const call = myPeer.call(userId,UserStream)
+        const contTemp = document.querySelector('#cont_temp').innerHTML
+        call.on('stream',userVideoStream=>{
+            addVideoStream(contTemp,userVideoStream,names[userId],userId)
+        })
+        call.on('close',()=>{
+            console.log('cloase')
+            $('#'+userId).parents('.contact_temp').remove()
+        })
+
+        peers[userId]=call;
+    }
+
+    const addVideoStream = async (temp,stream,name,uid)=>{
+        
+        if(name && stream!=undefined && list[uid]!=1){
+        const html = Mustache.render(temp,{
+            username:name,
+            videoId:uid
+            
+        })
+       console.log("name",name)
+
+        contacts.insertAdjacentHTML('beforeend',html)   
+        try {document.querySelector('#'+uid).srcObject= stream}
+        catch(e)
+        {
+
+        }
+        document.querySelector('#'+uid).play()
+        list[uid]=1;
+    }
+        
+    }
+
+
+
+
     // bottom icon bar 
 
     const mic = document.querySelector('.mic')
@@ -98,16 +156,11 @@ test.onclick = ()=>{
     }
 
     myPeer.on('open',id=>{
+        Myid=id;
         socket.emit('join-room',id,roomId,myName)
     })
 
-    socket.on('user-connected',(userId,name)=>{
-        names[userId]=name;
-        connectToMsg(userId,myName)
-        // connectToNewUser(userId)
-        console.log('1',userId,name)
-
-    })
+    
 
     const connectToMsg = (userId,name)=>{
         const conn = myPeer.connect(userId)
@@ -115,15 +168,7 @@ test.onclick = ()=>{
             console.log(2,name,conn)
             conn.send({
                 type:'meta',
-                name:name,
-            })
-            conn.send({
-                type:'pdf',
-                file:'hello file'
-            })
-            conn.send({
-                type:'png',
-                file:'hello'
+                name:name
             })
         })
         msg[userId]=conn;
@@ -138,9 +183,12 @@ test.onclick = ()=>{
         conn.on('data',(data)=>{
             console.log(data)
             switch(data.type){
-                case 'meta':console.log(data.name);
+                case 'meta':console.log(data.name,conn.peer);
                             names[conn.peer]=data.name;
+                            sendResponse(conn.peer);
                             break;
+                case 'response':console.log('got response');
+                                connectToNewUser(conn.peer,UserStream);break;
                 case 'msg':console.log(data.msg);
                             sendMsg(names[conn.peer],data.msg)
                             break;
@@ -151,6 +199,11 @@ test.onclick = ()=>{
             }
         })
     })
+    const sendResponse = (userId)=>{
+        msg[userId].send({
+            type:'response'
+        })
+    }
 
     // sending text msg
 
@@ -179,6 +232,34 @@ test.onclick = ()=>{
         textMsg.value='';
     }
 
+    socket.on('presenting',userId=>{
+        peers[userId].close();
+        list[userId]=null;
+    })
+
+
+    $('#present').on('click',async ()=>{
+        let captureStream = null;
+        try{
+            captureStream = await navigator.mediaDevices.getDisplayMedia();
+        }
+        catch(e)
+        {
+            console.log('error',e);
+        }
+        UserStream.removeTrack(UserStream.getVideoTracks()[0])
+        UserStream.addTrack(captureStream.getVideoTracks()[0])
+
+        socket.emit('present',Myid);
+        for(let key in msg)
+        {
+            if(msg.hasOwnProperty(key)){
+            value=msg[key];
+            peers[value.peer].close();
+            connectToNewUser(value.peer,UserStream);
+            }
+        }
+    })
 
     const sendMsg = (name,message)=>{
     const html  = Mustache.render(msgTemp,{

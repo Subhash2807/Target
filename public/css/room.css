@@ -57,6 +57,15 @@ body::-webkit-scrollbar {
     border-radius: 50%;
     margin:10px
 }
+
+#present{
+    display: none;
+}
+#present::after{
+    content:"present now";
+    display: grid;
+}
+
 .bottom,.head{
     display: flex;
     justify-content: center;
@@ -131,7 +140,6 @@ input[type="file"] {
 .image{
     height: 100%;
     width:25%;
-    background-color:grey; 
 }
 .name{
     display: flex;
@@ -142,6 +150,7 @@ input[type="file"] {
 .image video{
     height: 100%;
     width:100%;
+    
 }
 
 
