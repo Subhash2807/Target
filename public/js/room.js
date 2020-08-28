@@ -59,8 +59,6 @@ const contacts = document.querySelector('.head_contacts')
     navigator.mediaDevices.getUserMedia({video:true,audio:{echoCancellation: true}}).then(stream=>{
         UserStream=stream
         Video.srcObject = UserStream;
-        console.log(Video)
-
 
         myPeer.on('call',call=>{
             
@@ -68,7 +66,6 @@ const contacts = document.querySelector('.head_contacts')
             const contTemp = document.querySelector('#cont_temp').innerHTML
             call.on('stream',userVideoStream=>{
                 addVideoStream(contTemp,userVideoStream,names[call.peer],call.peer)
-                console.log(call.peer)
             })
             
             
@@ -83,7 +80,6 @@ const contacts = document.querySelector('.head_contacts')
     })
 
     socket.on('user-disconnected',userId=>{
-        console.log('disconnected 2')
         if(peers[userId]) peers[userId].close();
         if(msg[userId]) msg[userId].close();
         list[userId]=null;
@@ -102,7 +98,6 @@ const contacts = document.querySelector('.head_contacts')
             addVideoStream(contTemp,userVideoStream,names[userId],userId)
         })
         call.on('close',()=>{
-            console.log('cloase')
             $('#'+userId).parents('.contact_temp').remove()
         })
 
@@ -117,16 +112,19 @@ const contacts = document.querySelector('.head_contacts')
             videoId:uid
             
         })
-       console.log("name",name)
 
         contacts.insertAdjacentHTML('beforeend',html)   
-        try {document.querySelector('#'+uid).srcObject= stream}
+        try {
+            document.querySelector('#'+uid).srcObject= stream
+             document.querySelector('#'+uid).play()
+             list[uid]=1;
+
+           }
         catch(e)
         {
 
         }
-        document.querySelector('#'+uid).play()
-        list[uid]=1;
+        
     }
         
     }
@@ -165,7 +163,6 @@ const contacts = document.querySelector('.head_contacts')
     const connectToMsg = (userId,name)=>{
         const conn = myPeer.connect(userId)
         conn.on('open',()=>{
-            console.log(2,name,conn)
             conn.send({
                 type:'meta',
                 name:name
@@ -178,19 +175,14 @@ const contacts = document.querySelector('.head_contacts')
 
         if(msg[conn.peer]==null)
         connectToMsg(conn.peer,myName)
-        console.log(3,'connection established')
 
         conn.on('data',(data)=>{
-            console.log(data)
             switch(data.type){
-                case 'meta':console.log(data.name,conn.peer);
-                            names[conn.peer]=data.name;
+                case 'meta':names[conn.peer]=data.name;
                             sendResponse(conn.peer);
                             break;
-                case 'response':console.log('got response');
-                                connectToNewUser(conn.peer,UserStream);break;
-                case 'msg':console.log(data.msg);
-                            sendMsg(names[conn.peer],data.msg)
+                case 'response':connectToNewUser(conn.peer,UserStream);break;
+                case 'msg':sendMsg(names[conn.peer],data.msg)
                             break;
                 case 'image':sendImg(names[conn.peer],data.fileType,data.file,data.fileName);
                             break;
@@ -235,6 +227,7 @@ const contacts = document.querySelector('.head_contacts')
     socket.on('presenting',userId=>{
         peers[userId].close();
         list[userId]=null;
+        document.querySelectorAll('#'+userId).forEach(video=>$(video).parents('#contact_temp').remove())
     })
 
 
@@ -256,6 +249,7 @@ const contacts = document.querySelector('.head_contacts')
             if(msg.hasOwnProperty(key)){
             value=msg[key];
             peers[value.peer].close();
+            list[value.peer]=null;
             connectToNewUser(value.peer,UserStream);
             }
         }
@@ -306,7 +300,6 @@ const contacts = document.querySelector('.head_contacts')
 
 const fileSend = document.querySelector('#file-upload')
 fileSend.onchange = ()=>{
-    // console.log('selected')
     const file = fileSend.files[0]
     if(file.type.includes('image'))
     {
@@ -341,3 +334,23 @@ fileSend.onchange = ()=>{
 }
 
 })
+
+let tempId;
+function test(e){
+   const temp = e.querySelector('video').srcObject
+   e.querySelector('video').srcObject=document.getElementById('main_video').srcObject;
+   document.getElementById('main_video').srcObject=temp;
+   const tempName = $('#presenter').text()
+   $('#presenter').text($(e).find('.name').text()+" ")
+   $(e).find('.name').text(tempName+" ")
+   if(tempId)
+   {
+       const temp = e.querySelector('video').id;
+       e.querySelector('video').id =tempId;
+       tempId = temp;
+   }
+   else
+   {
+       tempId = e.querySelector('video').id
+   }
+}
