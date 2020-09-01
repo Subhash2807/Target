@@ -1,10 +1,16 @@
 const router = require('express').Router()
 const User = require('../db/user')
+const Student = require('../db/modals/students')
+const Coaching = require('../db/modals/coaching')
+const Teacher = require('../db/modals/teachers')
+const Assignment = require('../db/modals/assignment')
 const passport = require('passport')
 const bcrypt = require('bcrypt');
+const multer = require('multer')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const flash = require('connect-flash')
+const {checkAuthenticated,loginCheck} = require('./auth')
 
 
 router.use(cookieParser('secret'))
@@ -29,70 +35,139 @@ router.use((req,res,next)=>{
     next();
 })
 
-
-const checkAuthenticated =(req,res,next)=>{
-    if(req.isAuthenticated())
-    {
-        res.set('Cache-control','no-cache,private,no-store,must-revalidate,post-check=0,pre-check=0');
-        return next();
-    }
-    else{
-        res.redirect('/login');
-    }
-}
+//passport.js
+require('../passport')(passport)
 
 
-
-// Authentication Strategy
-
-var localStrategy = require('passport-local').Strategy
- passport.use(new localStrategy({usernameField:'email'},(username,password,done)=>{
-    User.findOne({email:username},(err,data)=>{
-        if(err) throw err;
-        if(!data)
-        {
-            return done(null,false,{message:"no such user is exited"})
-        }
-        bcrypt.compare(password,data.password,(err,match)=>{
-            if(err)
-            {
-                return done(null,false);
-            }
-            else if (!match)
-            {
-                return done(null,false,{message:"password doesn't matched"})
-            }
-            if(match)
-            {
-                return done(null,data);
-            }
-        })
-    })
- }))
-
- passport.serializeUser((user,cb)=>{
-     cb(null,user.id)
- })
-
- passport.deserializeUser((id,cb)=>{
-     User.findById(id,(err,user)=>{
-         cb(err,user)
-     })
- })
-
- // end of authentication strategy
-
-
-router.get('/login',(req,res)=>{
-    res.render('login')
+router.get('/login',loginCheck,(req,res)=>{
+    console.log(res.locals.error)
+    res.render('login',{err:res.locals.error})
 })
 
 router.get('/register',(req,res)=>{
     res.render('register');
 })
 
-router.post('/register',async (req,res)=>{
+
+
+
+
+
+//multer
+
+const upload = new multer({
+    limits:{
+        fileSize:1000000
+    },
+    fileFilter(req,file,cb){
+        if(!file.originalname.match(/\.(jpg|jpeg|png)/)){
+            return cb(new Error('upload image only'))
+        }
+        cb(undefined,true)
+    }
+})
+
+//,multer end
+
+
+
+// post  request for registration
+
+router.post('/register/coaching',upload.single('avatar'),async (req,res,next)=>{
+    if(req.file)
+    req.body.avatar = req.file.buffer
+    var{email,coaching,name} = req.body
+
+    if(!email || !name)
+    {
+        return res.render('register',{err:'nam and email field must be filled'})
+    }
+
+    try{
+
+        var user = await Coaching.findOne({email});
+        console.log(user)
+        if(user)
+        {
+            return res.render('register',{err:'user exit with this username'});
+        }
+        else{
+            user = new Coaching(req.body);
+            await user.save();
+            req.flash('success_message',"register successfully....logijn to continue")
+            return res.redirect('/login');
+        }
+    }
+    catch(e)
+    {
+        console.log(e)
+        return res.render('register',{err:e})
+    }
+})
+
+router.post('/register/teacher',upload.single('avatar'),async (req,res)=>{
     var {name,email,password,password2,coaching} = req.body;
+    if(req.file)
+    console.log(req.body)
+    req.body.avatar = req.file.buffer
+    if(password2!==password)
+    {
+       return res.render('register',{err:'password doesn\'t matched'})
+    }
+    if(!email || !password || !coaching || !name)
+    {
+        return res.render('register',{err:'all field must be filled'})
+    }
+    if(password.length<8)
+    {
+        return res.render('register',{err:'min password length is 8'})
+    }
+    try{
+
+        var user = await Teacher.findOne({email});
+        console.log(user)
+        if(user)
+        {
+            return res.render('register',{err:'user exit with this username'});
+        }
+        else{
+            const subject = req.body.subject;
+            req.body.subject=undefined;
+            req.body.password2=undefined;
+            var coaching = await Coaching.findOne({name:req.body.coaching})
+            
+            user = new Teacher(req.body);
+            await user.save();
+            console.log(coaching[req.body.class])
+            coaching.teachers.push(user.id);
+            coaching[req.body.class].forEach(object =>{
+                if(object.subject===subject)
+                {
+                    object.Teacher=user.id;
+                }
+            })
+            await coaching.save()
+            
+            req.flash('success_message',"register successfully....logijn to continue")
+            return res.redirect('/login');
+            
+        }
+    }
+    catch(e)
+    {
+        console.log(e)
+        return res.render('register',{err:e})
+    }
+})
+
+
+
+router.post('/register/student',upload.single('avatar'),async (req,res)=>{
+    var {name,email,password,password2,coaching} = req.body;
+    const clas = req.body.class;
+    console.log(req.body)
+    if(req.file)
+    req.body.avatar=req.file.buffer;
 
     if(password2!==password)
     {
@@ -108,15 +183,24 @@ router.post('/register',async (req,res)=>{
     }
     try{
 
-        var user = await User.findOne({email});
+        var user = await Student.findOne({email});
         console.log(user)
         if(user)
         {
             return res.render('register',{err:'user exit with this username'});
         }
         else{
-            user = new User({email,password,name,coaching});
+            user = new Student(req.body);
             await user.save();
+            const coach = await Coaching.findOne({name:coaching});
+            coach.students.push(user.id);
+            coach[clas].forEach(object=>{
+                if(object.subject===req.body.subject)
+                {
+                    object.students.push(user.id);
+                }
+            })
+            await coach.save();
             req.flash('success_message',"register successfully....logijn to continue")
             return res.redirect('/login');
             
@@ -129,13 +213,28 @@ router.post('/register',async (req,res)=>{
     }
 })
 
-router.post('/login',(req,res,next)=>{
-    passport.authenticate('local',{
+
+//login page for student  and teachers
+
+router.post('/login/student',(req,res,next)=>{
+    passport.authenticate('user',{
         failureRedirect:'/login',
         successRedirect:'/home',
         failureFlash:true
     })(req,res,next);
 })
+router.post('/login/teacher',(req,res,next)=>{
+    passport.authenticate('teacher',{
+        failureRedirect:'/login',
+        successRedirect:'/home',
+        failureFlash:true
+    })(req,res,next);
+})
+
+
+
+
+
 
 router.get('/home',checkAuthenticated,(req,res)=>{
     res.render('home',{name:req.user.name,email:req.user.email,coaching:req.user.coaching});
