@@ -39,7 +39,7 @@ const studentSchema = new schema({
     avatar:Buffer,
     coaching:String,
     data:[{
-        coaching:{type:schema.Types.ObjectId,ref:'Coaching'},
+        coaching:String,
         subjects:[{type:String}]
     }],
     assignments:[{type:schema.Types.ObjectId,ref:'Assignment'}]

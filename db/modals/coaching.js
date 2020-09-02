@@ -16,7 +16,8 @@ const coachingSchema = new schema({
         subject:String,
         Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
         students:[{type:schema.Types.ObjectId,ref:'Student'}],
-        notes:[{type:Buffer}],
+        notes:{type:[{fileName:String,
+            file:Buffer}]},
         Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
     }],
         default:[{
@@ -30,7 +31,8 @@ const coachingSchema = new schema({
         subject:String,
         Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
         students:[{type:schema.Types.ObjectId,ref:'Student'}],
-        notes:[{type:Buffer}],
+        notes:{type:[{fileName:String,
+        file:Buffer}]},
         Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
     }],
 default:[{

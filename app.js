@@ -5,6 +5,8 @@ const io = require('socket.io')(server);
 require('./router/socket')(io)
 require('./db/connect')
 const authRouter = require('./router/routes')
+const teacherRouter = require('./router/teacher')
+const studentRouter = require('./router/student')
 
 
 app.set('view engine','ejs')
@@ -12,6 +14,8 @@ app.use(express.json());
 app.use(express.static('public'))
 app.use(express.urlencoded({extended:true}));
 app.use(authRouter)
+app.use(teacherRouter)
+app.use(studentRouter   )
 
 
 

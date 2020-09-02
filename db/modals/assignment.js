@@ -3,6 +3,7 @@ const schema = mongoose.Schema
 
 const assignmentSchema = new schema({
     file:Buffer,
+    fileName:String,
     email:String,
     coaching:String,
     subject:String 

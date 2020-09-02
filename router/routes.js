@@ -132,7 +132,6 @@ router.post('/register/teacher',upload.single('avatar'),async (req,res)=>{
         }
         else{
             const subject = req.body.subject;
-            req.body.subject=undefined;
             req.body.password2=undefined;
             var coaching = await Coaching.findOne({name:req.body.coaching})
             
@@ -219,26 +218,19 @@ router.post('/register/student',upload.single('avatar'),async (req,res)=>{
 router.post('/login/student',(req,res,next)=>{
     passport.authenticate('user',{
         failureRedirect:'/login',
-        successRedirect:'/home',
+        successRedirect:'/home/student',
         failureFlash:true
     })(req,res,next);
 })
 router.post('/login/teacher',(req,res,next)=>{
     passport.authenticate('teacher',{
         failureRedirect:'/login',
-        successRedirect:'/home',
+        successRedirect:'/home/teacher',
         failureFlash:true
     })(req,res,next);
 })
 
 
-
-
-
-
-router.get('/home',checkAuthenticated,(req,res)=>{
-    res.render('home',{name:req.user.name,email:req.user.email,coaching:req.user.coaching});
-})
 
 router.get('/room/:room',checkAuthenticated,(req,res)=>{
     res.render('room',{name:req.user.name,email:req.user.email,coaching:req.user.coaching,room:req.params.room});
