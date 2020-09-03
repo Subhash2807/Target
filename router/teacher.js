@@ -3,7 +3,7 @@ const Student = require('../db/modals/coaching')
 const Teacher = require('../db/modals/teachers')
 const Coaching = require('../db/modals/coaching')
 const Assignment = require('../db/modals/assignment')
-const{checkAuthenticated} = require('./auth')
+const{checkAuthenticated,isVerified} = require('./auth')
 const multer = require('multer')
 const upload = new multer({
     limits:{
@@ -17,7 +17,7 @@ const upload = new multer({
     }
 })
 
-router.get('/home/teacher',checkAuthenticated,async(req,res)=>{
+router.get('/home/teacher',checkAuthenticated,isVerified,async(req,res)=>{
     const assignments = await Assignment.find({coaching:req.user.coaching,subject:req.user.subject})
     // console.log(assignments)
     const coaching = await Coaching.findOne({name:req.user.coaching}).populate(`${req.user.class}`)

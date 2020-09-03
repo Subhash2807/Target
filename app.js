@@ -7,7 +7,9 @@ require('./db/connect')
 const authRouter = require('./router/routes')
 const teacherRouter = require('./router/teacher')
 const studentRouter = require('./router/student')
+const verfyRouter = require('./router/verify')
 const path = require('path')
+
 
 var Path = path.join(__dirname, '/public')
 app.set('view engine', 'ejs')
@@ -18,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(authRouter)
 app.use(teacherRouter)
 app.use(studentRouter)
+app.use(verfyRouter)
 
 
 

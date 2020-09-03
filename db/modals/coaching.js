@@ -8,6 +8,10 @@ const coachingSchema = new schema({
         trim:true,
         unique:true
     },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
     email:String,
     avatar:Buffer,
     address:String,

@@ -17,6 +17,10 @@ const teacherSchema = new schema({
         required:true,
         unique:true
     },
+    isVerified:{
+        type:Boolean,
+        default:false
+    },
     contacts:{
         type:String
     },

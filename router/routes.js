@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const flash = require('connect-flash')
 const {checkAuthenticated,loginCheck} = require('./auth')
+const {coachingVerify,teacherVerify,studentVerify}=require('../email/email')
 
 
 router.use(cookieParser('secret'))
@@ -92,8 +93,9 @@ router.post('/register/coaching',upload.single('avatar'),async (req,res,next)=>{
         }
         else{
             user = new Coaching(req.body);
-            await user.save();
+            const result = await user.save();
             req.flash('success_message',"register successfully....logijn to continue")
+            coachingVerify(result.email,result.id)
             return res.redirect('/login');
         }
     }
@@ -135,7 +137,7 @@ router.post('/register/teacher',upload.single('avatar'),async (req,res)=>{
             var coaching = await Coaching.findOne({name:req.body.coaching})
             
             user = new Teacher(req.body);
-            await user.save();
+            const result = await user.save();
             console.log(coaching[req.body.class])
             coaching.teachers.push(user.id);
             coaching[req.body.class].forEach(object =>{
@@ -144,6 +146,7 @@ router.post('/register/teacher',upload.single('avatar'),async (req,res)=>{
                     object.Teacher=user.id;
                 }
             })
+            teacherVerify(result.email,result.id)
             await coaching.save()
             
             req.flash('success_message',"register successfully....logijn to continue")
@@ -193,7 +196,8 @@ router.post('/register/student',upload.single('avatar'),async (req,res)=>{
                 coaching:req.body.coaching,
                 subjects:[req.body.subject]
             })
-            await user.save();
+            const result = await user.save();
+            studentVerify(result.email,result.id)
             const coach = await Coaching.findOne({name:coaching});
             coach.students.push(user.id);
             coach[clas].forEach(object=>{

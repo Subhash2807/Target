@@ -22,4 +22,13 @@ const loginCheck = (req,res,next)=>{
     }
 }
 
-module.exports = {checkAuthenticated,loginCheck}
+const isVerified = (req,res,next)=>{
+    if(req.user.isVerified)
+    next()
+    else
+    res.redirect('/verify')
+}
+
+
+
+module.exports = {checkAuthenticated,loginCheck,isVerified}
