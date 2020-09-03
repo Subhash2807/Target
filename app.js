@@ -15,7 +15,7 @@ app.use(express.static('public'))
 app.use(express.urlencoded({extended:true}));
 app.use(authRouter)
 app.use(teacherRouter)
-app.use(studentRouter   )
+app.use(studentRouter)
 
 
 

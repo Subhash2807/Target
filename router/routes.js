@@ -190,6 +190,10 @@ router.post('/register/student',upload.single('avatar'),async (req,res)=>{
         }
         else{
             user = new Student(req.body);
+            user.data.push({
+                coaching:req.body.coaching,
+                subjects:[req.body.subject]
+            })
             await user.save();
             const coach = await Coaching.findOne({name:coaching});
             coach.students.push(user.id);

@@ -16,6 +16,14 @@
 
 subject 1 : <a href="/room/73b29873-c0bb-48e5-9427-a288646e5ae7" target="_blank">join</a>
 
+<h1>Links</h1>
+<%links.forEach(link=>{%>
+    <h1><%=link.coaching%></h1>
+    <%link.subjects.forEach(data=>{%>
+        <h3><%=data%></h3><a href="/room/<%=data%><%=link.coaching%><%=clas%>">JOIN</a>
+    <%})%>
+<%})%>
+
 <form action="/logout" method="get">
 <button>logout</button>
 </form>

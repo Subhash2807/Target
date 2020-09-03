@@ -18,9 +18,11 @@ const upload = new multer({
 })
 
 router.get('/home/teacher',checkAuthenticated,async(req,res)=>{
-    const assignments = await Assignment.find({coaching:req.user.coaching,subject:req.user.subject}).populate('xii')
-    console.log(assignments)
-    res.render('teacher',{name:req.user.name,email:req.user.email,coaching:req.user.coaching,image:req.user.avatar,assignments});
+    const assignments = await Assignment.find({coaching:req.user.coaching,subject:req.user.subject})
+    // console.log(assignments)
+    const coaching = await Coaching.findOne({name:req.user.coaching}).populate(`${req.user.class}`)
+    const link = `${req.user.class}${req.user.class}${req.user.subject}`
+    res.render('teacher',{name:req.user.name,email:req.user.email,coaching:req.user.coaching,image:req.user.avatar,assignments,link:link});
 })
 
 router.post('/notes',checkAuthenticated,upload.single('file'),async (req,res,next)=>{

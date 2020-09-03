@@ -5,7 +5,6 @@ const Coaching = require('../db/modals/coaching')
 const Assignment = require('../db/modals/assignment')
 const{checkAuthenticated} = require('./auth')
 const multer = require('multer')
-const e = require('express')
 const upload = new multer({
     limits:{
         fileSize:5000000
@@ -23,7 +22,7 @@ router.get('/home/student',checkAuthenticated,async (req,res)=>{
 
     const coaching = await Coaching.findOne({name:req.user.coaching})
     
-    res.render('student',{name:req.user.name,email:req.user.email,coaching:req.user.coaching,image:req.user.avatar,coach:coaching[req.user.class],err:res.locals.error_message,succ:res.locals.success_message});
+    res.render('student',{name:req.user.name,email:req.user.email,coaching:req.user.coaching,image:req.user.avatar,coach:coaching[req.user.class],err:res.locals.error_message,succ:res.locals.success_message,links:req.user.data,clas:req.user.class});
 })
 
 router.post('/addcoaching',checkAuthenticated,async(req,res)=>{

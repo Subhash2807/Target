@@ -12,7 +12,10 @@ const checkAuthenticated =(req,res,next)=>{
 const loginCheck = (req,res,next)=>{
     if(req.isAuthenticated())
     {
-        res.redirect('/home')
+        if(req.user.type=="Teacher")
+        res.redirect('/home/teacher')
+        else
+        res.redirect('/home/student')
     }
     else{
         return next()
