@@ -21,14 +21,14 @@ const upload = new multer({
 router.get('/home/student',checkAuthenticated,async (req,res)=>{
 
     const coaching = await Coaching.findOne({name:req.user.coaching})
-    
+    console.log(req.user.data)
     res.render('student',{name:req.user.name,email:req.user.email,coaching:req.user.coaching,image:req.user.avatar,coach:coaching[req.user.class],err:res.locals.error_message,succ:res.locals.success_message,links:req.user.data,clas:req.user.class});
 })
 
 router.post('/addcoaching',checkAuthenticated,async(req,res)=>{
     try {
         let flag = 0;
-        req.user.data.forEach(data=>{
+        req.user.data.every(data=>{
             
             if(data.coaching==req.body.coaching)
             {
@@ -40,7 +40,9 @@ router.post('/addcoaching',checkAuthenticated,async(req,res)=>{
                 }
                 else{
                     data.subjects.push(req.body.subject)
+                    flag=1;
                 }
+                return true
             }
         })
 
@@ -71,11 +73,11 @@ router.post('/addcoaching',checkAuthenticated,async(req,res)=>{
                 subjects:[req.body.subject]
             })
             await req.user.save()
-
+            console.log(req.user.data)
             req.flash("sucess_messae","new subject added")
-            res.redirect("/home/student")
+           return res.redirect("/home/student")
         }
-       return res.redirect('/home/student')
+        
     } catch (error) {
         req.flash('error_message',error.message)
         res.redirect('/home/student')
