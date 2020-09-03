@@ -1,4 +1,3 @@
-const User = require('../db/user.js')
 
 module.exports = (io) =>{
     io.on('connection',socket=>{

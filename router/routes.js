@@ -1,5 +1,4 @@
 const router = require('express').Router()
-const User = require('../db/user')
 const Student = require('../db/modals/students')
 const Coaching = require('../db/modals/coaching')
 const Teacher = require('../db/modals/teachers')

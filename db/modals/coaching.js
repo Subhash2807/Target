@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const schema = mongoose.Schema
-const { v4: uuidV4 } = require('uuid')
 
 
 const coachingSchema = new schema({
@@ -55,70 +54,3 @@ coachingSchema.methods.toJSON = function()
 
 const Coaching = mongoose.model('Coaching',coachingSchema);
 module.exports = Coaching;
-
-// xi:[{
-//     subject:{
-//         type:String,
-//         default:'Physics'
-//     },
-//     Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
-//     students:[{type:schema.Types.ObjectId,ref:'Student'}],
-//     notes:[{type:Buffer}],
-//     Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
-    
-// },
-// {
-//     subject:{
-//         type:String,
-//         default:'Chemistry'
-//     },
-//     Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
-//     students:[{type:schema.Types.ObjectId,ref:'Student'}],
-//     notes:[{type:Buffer}],
-//     Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
-    
-// },
-// {
-//     subject:{
-//         type:String,
-//         default:'Maths'
-//     },
-//     Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
-//     students:[{type:schema.Types.ObjectId,ref:'Student'}],
-//     notes:[{type:Buffer}],
-//     Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
-    
-// }],
-// xii:[{
-//     subject:{
-//         type:String,
-//         default:'Physics'
-//     },
-//     Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
-//     students:[{type:schema.Types.ObjectId,ref:'Student'}],
-//     notes:[{type:Buffer}],
-//     Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
-    
-// },
-// {
-//     subject:{
-//         type:String,
-//         default:'Chemistry'
-//     },
-//     Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
-//     students:[{type:schema.Types.ObjectId,ref:'Student'}],
-//     notes:[{type:Buffer}],
-//     Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
-    
-// },
-// {
-//     subject:{
-//         type:String,
-//         default:'Maths'
-//     },
-//     Assignment:[{type:schema.Types.ObjectId,ref:'Assignment'}],
-//     students:[{type:schema.Types.ObjectId,ref:'Student'}],
-//     notes:[{type:Buffer}],
-//     Teacher:{type:schema.Types.ObjectId,ref:'Teacher'},
-    
-// }]
