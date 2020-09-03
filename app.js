@@ -7,20 +7,26 @@ require('./db/connect')
 const authRouter = require('./router/routes')
 const teacherRouter = require('./router/teacher')
 const studentRouter = require('./router/student')
+const path = require('path')
 
-
-app.set('view engine','ejs')
+var Path = path.join(__dirname, '/public')
+app.set('view engine', 'ejs')
+app.set('views', path.join(__dirname, 'views'))
 app.use(express.json());
-app.use(express.static('public'))
-app.use(express.urlencoded({extended:true}));
+app.use(express.static(Path))
+app.use(express.urlencoded({ extended: true }));
 app.use(authRouter)
 app.use(teacherRouter)
-app.use(studentRouter   )
+app.use(studentRouter)
 
 
 
 const port = process.env.PORT || 3000
 
-server.listen(port,()=>{
+app.get('/', (req, res) => {
+    res.render('index')
+})
+
+server.listen(port, () => {
     console.log(`server is started at port ${port}`)
 })
