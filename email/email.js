@@ -17,7 +17,7 @@ const coachingVerify = (email,id)=>{
         to:email,
         from:process.env.USER,
         subject:'Please verify your email for teacher',
-        html:`<a href="http://localhost:3000/verify/coaching/${id}">Click here</a>`
+        html:`<a href="/verify/coaching/${id}">Click here</a>`
     }
     transporter.sendMail(mailOption,(err,info)=>{
         if(err)
@@ -32,7 +32,7 @@ const studentVerify =  (email,id)=>{
         to:email,
         from:process.env.USER,
         subject:'Please verify your email for teacher',
-        html:`<a href="http://localhost:3000/verify/student/${id}">Click here</a>`
+        html:`<a href="/verify/student/${id}">Click here</a>`
     }
     transporter.sendMail(mailOption,(err,info)=>{
         if(err)
@@ -47,7 +47,7 @@ const teacherVerify =  (email,id)=>{
         to:email,
         from:process.env.USER,
         subject:'Please verify your email for teacher',
-        html:`<a href="http://localhost:3000/verify/teacher/${id}">Click here</a>`
+        html:`<a href="/verify/teacher/${id}">Click here</a>`
     }
     transporter.sendMail(mailOption,(err,info)=>{
         if(err)
