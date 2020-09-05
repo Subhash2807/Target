@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+require('dotenv').config()
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 require('./router/socket')(io)
@@ -8,6 +9,7 @@ const authRouter = require('./router/routes')
 const teacherRouter = require('./router/teacher')
 const studentRouter = require('./router/student')
 const verfyRouter = require('./router/verify')
+const qnaRouter = require('./router/qna')
 const path = require('path')
 
 
@@ -21,6 +23,8 @@ app.use(authRouter)
 app.use(teacherRouter)
 app.use(studentRouter)
 app.use(verfyRouter)
+app.use(qnaRouter)
+
 
 
 
